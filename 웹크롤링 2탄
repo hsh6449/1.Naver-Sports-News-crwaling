@@ -1,0 +1,50 @@
+library(RSelenium)
+library(rvest)
+library(httr)
+
+remD <- remoteDriver(port = 4446L,
+                     browserName = "chrome")
+remD$open()#서버에연결 
+
+title_you <- "펭수"
+remD$navigate(paste0("https://www.youtube.com/results?search_query=",title_you))
+
+html <- remD$getPageSource()[[1]]
+html <- read_html(html)
+
+youtube_title <-  html%>%html_nodes("#video-title") %>%
+html_text()
+
+youtube_title <- gsub("\n","",youtube_title)
+youtube_title <- trimws(youtube_title)
+youtube_title #펭수의 컨텐츠 목록
+
+write.table(youtube_title,
+            file="C:/Users/user/Desktop/산하/전북대/19.2/데이터시각화/과제펭수_title.txt",
+            sep=",",
+            row.names=FALSE,
+            quote=FALSE)
+
+
+remD$navigate("https://www.youtube.com/watch?v=Ofi8fGaP6nU") #펭수 영상 중 상위에 위치한 영상하나 선택해서 url
+
+remD$executeScript("window.scrollTo(0,500)") #유튜브는 댓글이 한페이지에 펼쳐지기때문에 스크롤을 내리는 함수
+remD$executeScript("window.scrollTo(500,1500)")
+remD$executeScript("window.scrollTo(1500,2500)")
+remD$executeScript("window.scrollTo(2500,3500)")
+remD$executeScript("window.scrollTo(3500,4500)")
+html1 <- remD$getPageSource()[[1]]
+html1 <- read_html(html1)
+
+ytube_comments <- html1 %>% html_nodes("#content-text") %>% html_text()
+ytube_comments <- ytube_comments[1:600]
+head(ytube_comments)
+
+ytube_comments <- gsub("\n","",ytube_comments)
+ytube_comments <- trimws(ytube_comments)
+ytube_comments
+write.table(ytube_comments,
+            file="C:/Users/user/Desktop/산하/전북대/19.2/데이터시각화/과제펭수 댓글 2-1_title.txt",
+            sep=",",
+            row.names=FALSE,
+            quote=FALSE)
